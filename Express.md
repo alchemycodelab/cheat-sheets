@@ -216,7 +216,7 @@ function errorHandler(err, req, res, next) {
     // Catch Mongoose Validation Errors
     if(err.name === 'ValidationError' || err.name === 'CastError') {
         code = 400;
-        error = err.errors.name.message;
+        error = err.errors;
         console.log(code, error);
     }
     // A specific error raised by our code
