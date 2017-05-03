@@ -239,8 +239,8 @@ function errorHandler(err, req, res, next) {
 };
 ```
 
-Delineate between 400 level codes that deal with requestor issues, 
-and 500 level codes that deal with server errors. Don't forward actual `500`
+Delineate between `400` level codes that deal with requestor issues, 
+and `500` level codes that deal with server errors. Don't forward actual `500`
 error message as it represents an unexpected error and it may
 reveal inner workings of our server that compromise security.
 
