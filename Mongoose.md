@@ -1,7 +1,7 @@
 Mongoose
 ===
 
-Mongoose sits ontop of the `mongodb` node.js driver  (meaning it uses it and provides you the developer
+Mongoose sits on top of the `mongodb` node.js driver  (meaning it uses it and provides you the developer
 with a different coding API) and 
 introduces model semantics (enforces data expectations through 
 model validation).
@@ -10,12 +10,22 @@ model validation).
 
 ### Initialize
 
-Currently, it's a good practice to set the Promise library mongoose will
-use. Do this in initialization phase (usually initial "require" of a
+You need to set the Promise library mongoose will
+use or you will see a deprecation warning. 
+
+Do this in initialization phase (usually initial "require" of a
 `setup-mongoose.js`, `connect.js`, etc. type module:
 
 ```js
 mongoose.Promise = Promise;
+```
+
+In tests, you can use a global `before`:
+
+```js
+before(() => {
+    require('mongoose').Promise = Promise;
+});
 ```
 
 ### Connect
@@ -39,6 +49,9 @@ The format for the mongo connection URI is `mongodb://username:password@localhos
 After connecting, the connection is available via `mongoose.connection` which supports
 events including `connected` and `error`. You can explicitly close the connection using
 `mongoose.connection.close()`
+
+You can also have your module export a function that gets called with the db uri. In which
+case each caller can control how the db uri gets sets.
 
 ## Schemas
 
@@ -90,7 +103,7 @@ const storeSchema = new Schema({
 
 ### Validation
 
-The most common validations are `required`, `enum` (limit to set of values), 
+Some of the most common validations are `required`, `enum` (limit to set of values), 
 `min` and `max` type settings. You can also define custom validation functions:
 
 ```js
@@ -171,6 +184,22 @@ const movieSchema = new Schema({
 ```
 
 Each movie can have multiple actors, and each actor can be in multiple movies.
+
+You can add attributes (aka fields, properties or paths) to a many-to-many by creating an object as the child of the array:
+
+```js
+const movieSchema = new Schema({
+    title: String,
+    cast: [{
+        actor: {
+            type: Schema.Types.ObjectId,
+            ref: 'Actor'
+        },
+        role: String,
+        minutesOnScreen: Number
+    }]
+});
+```
 
 #### Sub-Documents
 
@@ -258,7 +287,9 @@ Pets.find()
 There is an expanded form of populate that allows you to specify fields to select as well
 as allowing nested populates (See the docs).
 
-Notice that to populate a parent with child data, you need to manually fetch the data:
+`populate()` only works if the key (_id) of the other document is in the document you are retrieving. 
+
+If the key _of_ the document you are retrieving is in the other document collection, in order  to "populate" a parent with child data, you need to manually fetch the data:
 
 ```js
 Promise.all([
